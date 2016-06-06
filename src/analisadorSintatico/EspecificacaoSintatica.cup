@@ -1,4 +1,73 @@
 package analisadorSintatico;
+package miniJava.parser;
+
+import java_cup.runtime.*;
+
+// Imports adicionados
+import java.io.IOException;
+import java.nio.file.Path;
+import miniJava.lexer.Lexer;
+
+import miniJava.ast.declaration.classDecl.ClassDecl;
+import miniJava.ast.declaration.classDecl.ExtendedClassDecl;
+import miniJava.ast.declaration.classDecl.SimpleClassDecl;
+import miniJava.ast.declaration.classDecl.list.ClassDeclList;
+import miniJava.ast.declaration.classDecl.main.MainClassDecl;
+import miniJava.ast.declaration.methodDecl.Argument;
+import miniJava.ast.declaration.methodDecl.MethodDecl;
+import miniJava.ast.declaration.methodDecl.list.ArgumentList;
+import miniJava.ast.declaration.methodDecl.list.MethodDeclList;
+import miniJava.ast.declaration.varDecl.VarDecl;
+import miniJava.ast.declaration.varDecl.list.VarDeclList;
+import miniJava.ast.expression.Expression;
+import miniJava.ast.expression.MethodCallExpr;
+import miniJava.ast.expression.ThisExpr;
+import miniJava.ast.expression.array.ArrayLengthExpr;
+import miniJava.ast.expression.array.ArrayLookupExpr;
+import miniJava.ast.expression.array.NewArrayExpr;
+import miniJava.ast.expression.bool.BinaryBooleanExpr;
+import miniJava.ast.expression.bool.BooleanLiteralExpr;
+import miniJava.ast.expression.bool.UnaryBooleanExpr;
+import miniJava.ast.expression.identifier.IdentifierExpr;
+import miniJava.ast.expression.identifier.NewObjectExpr;
+import miniJava.ast.expression.integer.BinaryIntegerExpr;
+import miniJava.ast.expression.integer.IntegerLiteralExpr;
+import miniJava.ast.expression.list.ExpressionList;
+import miniJava.ast.identifier.Identifier;
+import miniJava.ast.program.Program;
+import miniJava.ast.statement.*;
+import miniJava.ast.statement.list.StatementList;
+import miniJava.ast.type.*;
+parser code {:
+
+    // Salvando lexer e o arquivo como objetos da classe
+    private AnalisadorLexico lexer;
+
+    // Salvando arquivo, talvez para algum futuro uso
+    private Path file;
+
+    // Criando novo construtor onde é possivel setar um arquivo para ser analizado
+    public Parser(Path file) throws IOException {
+
+        // Salvando refrencia do arquivo
+        this.file = file;
+
+        // Criando um gerador de simbolos que sera salva na superclasse do lexer e no parser
+        // (não sei o porque de salvar no lexer)
+        ComplexSymbolFactory symbolFactory = new ComplexSymbolFactory();
+
+        // Superclasse lr_parser contem este atributo
+        super.symbolFactory = symbolFactory;
+
+        // Inicializando o lexer com o arquivo recebido e o gerador de simbolos
+        // Construtor abaixo descrito na especificação do lexer
+        // Tambem pode lançar execessão, que deve ser capturada ou lançar novamente por esse construtor
+        this.lexer = new AnalisadorLexico(file, symbolFactory);
+    }
+:}
+
+init with {:
+:}
 
 scan with {: return lexer.next_token(); :};
 

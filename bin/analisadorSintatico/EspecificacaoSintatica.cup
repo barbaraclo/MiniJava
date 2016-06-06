@@ -1,6 +1,77 @@
 package analisadorSintatico;
+package miniJava.parser;
+
+import java_cup.runtime.*;
+
+// Imports adicionados
+import java.io.IOException;
+import java.nio.file.Path;
+import miniJava.lexer.Lexer;
+
+import miniJava.ast.declaration.classDecl.ClassDecl;
+import miniJava.ast.declaration.classDecl.ExtendedClassDecl;
+import miniJava.ast.declaration.classDecl.SimpleClassDecl;
+import miniJava.ast.declaration.classDecl.list.ClassDeclList;
+import miniJava.ast.declaration.classDecl.main.MainClassDecl;
+import miniJava.ast.declaration.methodDecl.Argument;
+import miniJava.ast.declaration.methodDecl.MethodDecl;
+import miniJava.ast.declaration.methodDecl.list.ArgumentList;
+import miniJava.ast.declaration.methodDecl.list.MethodDeclList;
+import miniJava.ast.declaration.varDecl.VarDecl;
+import miniJava.ast.declaration.varDecl.list.VarDeclList;
+import miniJava.ast.expression.Expression;
+import miniJava.ast.expression.MethodCallExpr;
+import miniJava.ast.expression.ThisExpr;
+import miniJava.ast.expression.array.ArrayLengthExpr;
+import miniJava.ast.expression.array.ArrayLookupExpr;
+import miniJava.ast.expression.array.NewArrayExpr;
+import miniJava.ast.expression.bool.BinaryBooleanExpr;
+import miniJava.ast.expression.bool.BooleanLiteralExpr;
+import miniJava.ast.expression.bool.UnaryBooleanExpr;
+import miniJava.ast.expression.identifier.IdentifierExpr;
+import miniJava.ast.expression.identifier.NewObjectExpr;
+import miniJava.ast.expression.integer.BinaryIntegerExpr;
+import miniJava.ast.expression.integer.IntegerLiteralExpr;
+import miniJava.ast.expression.list.ExpressionList;
+import miniJava.ast.identifier.Identifier;
+import miniJava.ast.program.Program;
+import miniJava.ast.statement.*;
+import miniJava.ast.statement.list.StatementList;
+import miniJava.ast.type.*;
+parser code {:
+
+    // Salvando lexer e o arquivo como objetos da classe
+    private AnalisadorLexico lexer;
+
+    // Salvando arquivo, talvez para algum futuro uso
+    private Path file;
+
+    // Criando novo construtor onde é possivel setar um arquivo para ser analizado
+    public Parser(Path file) throws IOException {
+
+        // Salvando refrencia do arquivo
+        this.file = file;
+
+        // Criando um gerador de simbolos que sera salva na superclasse do lexer e no parser
+        // (não sei o porque de salvar no lexer)
+        ComplexSymbolFactory symbolFactory = new ComplexSymbolFactory();
+
+        // Superclasse lr_parser contem este atributo
+        super.symbolFactory = symbolFactory;
+
+        // Inicializando o lexer com o arquivo recebido e o gerador de simbolos
+        // Construtor abaixo descrito na especificação do lexer
+        // Tambem pode lançar execessão, que deve ser capturada ou lançar novamente por esse construtor
+        this.lexer = new AnalisadorLexico(file, symbolFactory);
+    }
+:}
+
+init with {:
+:}
 
 scan with {: return lexer.next_token(); :};
+
+
 
 
 terminal SOMA, SUBTRACAO, MULTIPLICACAO, DIVISAO, RESTO, NEGACAO, E, OU, IGUAL, DIFERENTE, MENOR, MENORIGUAL, MAIOR, MAIORIGUAL,
@@ -11,6 +82,90 @@ terminal Boolean TRUE, FALSE;
 terminal Integer NUMERO;
 terminal String IDENTIFICADOR;
 
-non terminal Programa prog; 
 
-prog		::=	SOMA;
+non terminal goal;
+non terminal mainClass;
+non terminal classList;
+non terminal classDeclaration;
+non terminal extendClass;
+non terminal varDeclaration;
+non terminal varList;
+non terminal methodDeclaration;
+non terminal methodList;
+non terminal parameter;
+non terminal parameterList;
+non terminal parameterCommaList;
+non terminal type;
+non terminal statement;
+non terminal statementList;
+non terminal expression;
+non terminal identifier;
+non terminal argument;
+non terminal argumentList;
+non terminal argumentCommaList;
+
+
+
+goal	::= mainClass classList;
+
+mainClass	::= CLASS identifier ABRECHAVES PUBLIC STATIC VOID MAIN STRING ABRECOL FECHACOL identifier FECHAPAR ABRECHAVES statemnet FECHACHAVES FECHACHAVES;
+
+classList	::= classDeclaration classList | ;
+
+classDeclaration	::= CLASS identifier extendClass ABRECHAVES varList methodList FECHACHAVES;
+
+varDeclaration	::= type identifier PONTOVIRGULA;	
+
+extendsClass	::=	EXTENDS identifier | ;
+
+methodDeclaration	::= PUBLIC type identifier ABREPAR argumentList FECHAPAR ABRECHAVES varList statementList RETURN expression PONTOVIRGULA FECHACHAVES
+
+argumentList ::= argument argumentCommaList | ;
+
+argumentCommaList ::= COMMA argument argumentCommaList | ;
+
+type	::= INT ABRECOL FECHACOL | BOOLEAN | INT | identifier
+		
+statement	::= ABRECHAVES statementList FECHACHAVES |  IF ABREPAR expression FECHAPAR statement ELSE statement
+				| WHILE ABREPAR expression FECHAPAR statement | SYSTEMOUTPRINTLN ABREPAR expression FECHAPAR PONTOVIRGULA | identifier ATRIBUI expression PONTOVIRGULA | identifier ABRECOL expression FECHACOL ATRIBUI expression PONTOVIRGULA
+
+expression	::= expression E MENOR SOMA SUBTRACAO MULTIPLICACAO expression | expression ABRECOL expression FECHACOL | expression PONTO LENGTH 
+				| expression PONTO identifier ABREPAR parameterList FECHAPAR | NUMERO | TRUE | FALSE | identifier | THIS | FALSE | identifier | THIS | NEW INT ABRECOL expression FECHACOL | NEW identifier AVREPAR FECHAPAR | NEGACAO expression | ABREPAR expression FECHAPAR
+				
+				
+parameterList	::= parameter parameterCommaList | ;
+
+ParameterCommaList	::= COMMA parameter parameterCommaList | ;
+
+identifier	::= IDENTIFICADOR
+
+expression	::= expression OU expression
+				| expression E expression
+				| expression IGUAL expression
+				| expression DIFERENTE expression
+				| expression MENOR expression
+				| expression MENORIGUAL expression
+				| expression MAIOR expression
+				| expression MAIORIGUAL expression
+				| expression SOMA expression
+				| expression SUBTRACAO expression
+				| expression MULTIPLICACAO expression
+				| expression DIVISAO expression
+				| expression RESTO expression
+				| NEGACAO expression
+				| expression ABRECOL expression FECHACOL
+				| expression PONTO LENGTH
+				| expression PONTO identifieR ABREPAR parameterList FECHAPAR
+				| NUMERO
+				| FALSE
+				| TRUE
+				| identifier
+				| THIS
+				| NEW INT ABRECOL expression FECHACOL
+				| NEW identifier ABREPAR FECHAPAR
+				| ABREPAR expression FECHAPAR			
+				| expression NUMERO;
+				
+				
+
+

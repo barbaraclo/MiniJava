@@ -1,5 +1,5 @@
 package analisadorLexico;
-import analisadorSintatico.Symbols.java
+import analisadorSintatico.Symbols;
 
 %% 
 
