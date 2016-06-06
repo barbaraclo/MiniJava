@@ -12,16 +12,16 @@ public class GeradorSintatico {
 	public static void main(String[] args) throws internal_error, IOException, Exception {
 		java_cup.Main.main(new String []{"-parser", "AnalisadorSintatico", "-interface", "-symbols", "Symbols",
 				"-destdir", "src/analisadorSintatico", "-expect", "1000", "src/analisadorSintatico/EspecificacaoSintatica.cup"});
-				
-		/*Parser parser = new Parser();
-		Symbols x = parser.parse();
+		/*		
+		 Symbols x = parser.parse();
+		 Parser p = new Parser()
 		//programa na forma de AST
-		Program prog = (Program) parser.parse().value;
+		Program prog = (Program)p.parse().value;
 		BuildSymbolTableVisitor stVis = new BuildSymbolTableVisitor();
+		//construindo tabela de símbolos
 		prog.accept(stVis); 
-		//chama o visitor de pretty print
-		prog.accept(new TypeCheckVisitor(stVis.getSymbolTable()));
-		int a = 0;
+		//fazendo a checagem de tipos
+		prog.accept(new TypeCheckVisitor(stVis.getSymbolTable())); 
 		*/
 		}
 
