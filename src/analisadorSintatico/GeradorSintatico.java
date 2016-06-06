@@ -13,7 +13,7 @@ public class GeradorSintatico {
 		java_cup.Main.main(new String []{"-parser", "AnalisadorSintatico", "-interface", "-symbols", "Symbols",
 				"-destdir", "src/analisadorSintatico", "-expect", "1000", "src/analisadorSintatico/EspecificacaoSintatica.cup"});
 				
-		/*ParserCup parser = new ParserCup();
+		/*Parser parser = new Parser();
 		Symbols x = parser.parse();
 		//programa na forma de AST
 		Program prog = (Program) parser.parse().value;
